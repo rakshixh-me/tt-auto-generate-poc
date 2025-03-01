@@ -47,17 +47,30 @@ app.get("/", (req, res) => {
 });
 
 app.post("/generate", (req, res) => {
-  const teachers = req.body.teachers
+  const teachers = Array.isArray(req.body.teachers)
     ? req.body.teachers.map((name) => ({ name }))
+    : req.body.teachers
+    ? [{ name: req.body.teachers }]
     : [];
-  const subjects = req.body.subjects
+
+  const subjects = Array.isArray(req.body.subjects)
     ? req.body.subjects.map((name, index) => ({
         name,
         teacher: req.body.subjectTeachers
-          ? req.body.subjectTeachers[index]
+          ? Array.isArray(req.body.subjectTeachers)
+            ? req.body.subjectTeachers[index]
+            : req.body.subjectTeachers
           : "Unknown",
       }))
+    : req.body.subjects
+    ? [
+        {
+          name: req.body.subjects,
+          teacher: req.body.subjectTeachers || "Unknown",
+        },
+      ]
     : [];
+
   generateTimetable(teachers, subjects);
   res.render("index", { timetable: TIMETABLE, timeSlots: TIME_SLOTS });
 });
