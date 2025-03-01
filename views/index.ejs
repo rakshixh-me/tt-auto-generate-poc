@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Timetable Generator</title>
+</head>
+<body>
+    <h1>Auto Timetable Generator</h1>
+    <form action="/generate" method="POST">
+        <h3>Teachers</h3>
+        <div id="teachers">
+            <div><input type="text" name="teachers" placeholder="Teacher Name" required></div>
+        </div>
+        <button type="button" onclick="addTeacher()">Add Teacher</button>
+
+        <h3>Subjects</h3>
+        <div id="subjects">
+            <div>
+                <input type="text" name="subjects" placeholder="Subject Name" required>
+                <select name="subjectTeachers" required>
+                    <option value="">Select Teacher</option>
+                </select>
+            </div>
+        </div>
+        <button type="button" onclick="addSubject()">Add Subject</button>
+
+        <br/><br/>
+        <button type="submit">Generate Timetable</button>
+    </form>
+
+    <% if (timetable) { %>
+    <h2>Generated Timetable</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Day</th>
+                <% timeSlots.forEach(function(slot) { %>
+                    <th><%= slot.time %></th>
+                <% }); %>
+            </tr>
+        </thead>
+        <tbody>
+            <% Object.keys(timetable).forEach(function(day) { %>
+                <tr>
+                    <td><%= day %></td>
+                    <% timeSlots.forEach(function(slot) { %>
+                        <td><%= timetable[day][slot.time] || "" %></td>
+                    <% }); %>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+    <% } %>
+
+    <script>
+        function addTeacher() {
+            const teachersDiv = document.getElementById('teachers');
+            const div = document.createElement('div');
+            div.innerHTML = '<input type="text" name="teachers" placeholder="Teacher Name" required>';
+            teachersDiv.appendChild(div);
+            updateTeacherDropdowns();
+        }
+
+        function addSubject() {
+            const subjectsDiv = document.getElementById('subjects');
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <input type="text" name="subjects" placeholder="Subject Name" required>
+                <select name="subjectTeachers" required>
+                    <option value="">Select Teacher</option>
+                </select>
+            `;
+            subjectsDiv.appendChild(div);
+            updateTeacherDropdowns();
+        }
+
+        function updateTeacherDropdowns() {
+            const teacherNames = Array.from(document.querySelectorAll('input[name="teachers"]')).map(input => input.value);
+            document.querySelectorAll('select[name="subjectTeachers"]').forEach(select => {
+                select.innerHTML = '<option value="">Select Teacher</option>' + teacherNames.map(name => `<option value="${name}">${name}</option>`).join('');
+            });
+        }
+
+        // Call updateTeacherDropdowns initially to populate the dropdowns
+        updateTeacherDropdowns();
+    </script>
+</body>
+</html>
